@@ -8,7 +8,7 @@ Bytepusher.__index = Bytepusher
 function Bytepusher.new()
     return setmetatable({
         mem = {},
-        pc = 0x00
+        pc = 0x0
     }, Bytepusher)
 end
 
@@ -30,7 +30,7 @@ function Bytepusher:load(file)
 
     -- init memory
     for byte = 0, (0x1000008 - 1) do
-        self.mem[byte] = 0x0000
+        self.mem[byte] = 0x0
     end
 
     -- load each byte from rom to memory
@@ -43,19 +43,16 @@ end
 
 -- main instruction cycle
 function Bytepusher:cycle()
-    local pc = self.pc
-    local mem = self.mem
+    self.pc = bit.bor(bit.lshift(self.mem[2], 16), bit.lshift(self.mem[3], 8), self.mem[4])
+    -- print(string.format("PC: 0x%x", self.pc))
 
-    pc = bit.bor(bit.lshift(mem[2], 16), bit.lshift(mem[3], 8), mem[4])
-    print(string.format("PC: 0x%x", pc))
+    for _ = 1, 0x10000 do
+        local A = bit.bor(bit.lshift(self.mem[self.pc + 0], 16), bit.lshift(self.mem[self.pc + 1], 8), self.mem[self.pc + 2])
+        local B = bit.bor(bit.lshift(self.mem[self.pc + 3], 16), bit.lshift(self.mem[self.pc + 4], 8), self.mem[self.pc + 5])
+        local C = bit.bor(bit.lshift(self.mem[self.pc + 6], 16), bit.lshift(self.mem[self.pc + 7], 8), self.mem[self.pc + 8])
 
-    for _ = 0, (0xffff - 1) do
-        local A = bit.bor(bit.lshift(mem[pc + 0], 16), bit.lshift(mem[pc + 1], 8), mem[pc + 2])
-        local B = bit.bor(bit.lshift(mem[pc + 3], 16), bit.lshift(mem[pc + 4], 8), mem[pc + 5])
-        local C = bit.bor(bit.lshift(mem[pc + 6], 16), bit.lshift(mem[pc + 7], 8), mem[pc + 8])
-
-        mem[B] = mem[A]
-        pc = mem[C]
+        self.mem[B] = self.mem[A]
+        self.pc = C
     end
 end
 
