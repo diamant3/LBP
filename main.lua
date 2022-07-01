@@ -24,23 +24,41 @@ end
 
 function love.draw()
     local zz = bit.lshift(Core.mem[5], 16)
-    local r, g, b
-    love.graphics.clear(0, 0, 0, 255)
+    local INTENSITY = 51
+    local OPAQUE = 255
 
-    for y = 0, 256 - 1 do
-        for x = 0, 256 - 1 do
-            local px_data = Core.mem[bit.bor(zz, bit.lshift(y, 8), x)]
+    -- set bg to black
+    love.graphics.clear(0, 0, 0, OPAQUE)
 
-            b = (px_data % 6) * 0x33
-            px_data = px_data / 6
+    for yy = 0, 256 - 1 do
+        for xx = 0, 256 - 1 do
+            local _yy = bit.lshift(yy, 8)
+            local c = Core.mem[bit.bor(zz, _yy, xx)]
+            local r, g, b = 0, 0, 0
 
-            g = (px_data % 6) * 0x33
-            px_data = px_data / 6
+            -- Multi pixel color (web safe palette)
+            if (c < 216) then
+                b = (c % 6) * INTENSITY
+                c = c / 6
+                g = (c % 6) * INTENSITY
+                c = c / 6
+                r = (c % 6) * INTENSITY
 
-            r = (px_data % 6) * 0x33
+                r = r / OPAQUE
+                g = g / OPAQUE
+                b = b / OPAQUE
 
-            love.graphics.setColor(r, g, b, 255)
-            love.graphics.rectangle("fill", x, y, 1, 1)
+                love.graphics.setColor(r, g, b, OPAQUE)
+            elseif (c >= 216) then
+                -- black pixel color
+                love.graphics.setColor(0, 0, 0, OPAQUE)
+            else
+                -- White pixel color
+                love.graphics.setColor(OPAQUE, OPAQUE, OPAQUE, OPAQUE)
+            end
+
+            -- draw pixel
+            love.graphics.rectangle("fill", xx, yy, 1, 1)
         end
     end
 end
