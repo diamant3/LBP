@@ -28,11 +28,6 @@ function Bytepusher:load(file)
         end
     end
 
-    -- init memory
-    for byte = 0, (0x1000008 - 1) do
-        self.mem[byte] = 0x0
-    end
-
     -- load each byte from rom to memory
     for byte = 1, #buffer do
         self.mem[byte - 1] = buffer[byte]
@@ -43,15 +38,19 @@ end
 
 -- main instruction cycle
 function Bytepusher:cycle()
+    -- fetch
     self.pc = bit.bor(bit.lshift(self.mem[2], 16), bit.lshift(self.mem[3], 8), self.mem[4])
-    -- print(string.format("PC: 0x%x", self.pc))
 
-    for _ = 1, 0x10000 do
+    for _ = 0, 0xFFFFF do
+        -- cycle 24-bit addresses
         local A = bit.bor(bit.lshift(self.mem[self.pc + 0], 16), bit.lshift(self.mem[self.pc + 1], 8), self.mem[self.pc + 2])
         local B = bit.bor(bit.lshift(self.mem[self.pc + 3], 16), bit.lshift(self.mem[self.pc + 4], 8), self.mem[self.pc + 5])
         local C = bit.bor(bit.lshift(self.mem[self.pc + 6], 16), bit.lshift(self.mem[self.pc + 7], 8), self.mem[self.pc + 8])
 
+        -- copy
         self.mem[B] = self.mem[A]
+
+        -- jump
         self.pc = C
     end
 end
