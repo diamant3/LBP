@@ -1,6 +1,6 @@
 local bit = require("bit") or require("bit32")
 
--- Bytepusher object definition
+-- Bytepusher object
 local Bytepusher = {}
 Bytepusher.__index = Bytepusher
 
@@ -12,10 +12,15 @@ function Bytepusher.new()
     }, Bytepusher)
 end
 
--- Load a rom file to memory (.bytepusher/.bp file ext)
+-- Load a rom file to memory file ext: .bp/.bytepusher
 function Bytepusher:load(file)
     -- the rom buffer
     local buffer = {}
+
+    -- init memory
+    for byte = 0, 0x1000008 - 1 do
+        self.mem[byte] = 0
+    end
 
     -- load each byte fom rom into buffer
     while (not file:isEOF()) do
@@ -23,7 +28,7 @@ function Bytepusher:load(file)
 
         -- check rom buffer status
         if (not buffer[#buffer]) then
-            print("reading ROM failed: ("..(buffer[#buffer] or "nil")..")")
+            print("reading ROM failed: (" .. (buffer[#buffer] or "nil") .. ")")
             return
         end
     end
@@ -41,11 +46,14 @@ function Bytepusher:cycle()
     -- fetch
     self.pc = bit.bor(bit.lshift(self.mem[2], 16), bit.lshift(self.mem[3], 8), self.mem[4])
 
-    for _ = 0, 0xFFFFF do
+    for _ = 0, 0xFFFF do
         -- cycle 24-bit addresses
-        local A = bit.bor(bit.lshift(self.mem[self.pc + 0], 16), bit.lshift(self.mem[self.pc + 1], 8), self.mem[self.pc + 2])
-        local B = bit.bor(bit.lshift(self.mem[self.pc + 3], 16), bit.lshift(self.mem[self.pc + 4], 8), self.mem[self.pc + 5])
-        local C = bit.bor(bit.lshift(self.mem[self.pc + 6], 16), bit.lshift(self.mem[self.pc + 7], 8), self.mem[self.pc + 8])
+        local A = bit.bor(bit.lshift(self.mem[self.pc + 0], 16), bit.lshift(self.mem[self.pc + 1], 8),
+            self.mem[self.pc + 2])
+        local B = bit.bor(bit.lshift(self.mem[self.pc + 3], 16), bit.lshift(self.mem[self.pc + 4], 8),
+            self.mem[self.pc + 5])
+        local C = bit.bor(bit.lshift(self.mem[self.pc + 6], 16), bit.lshift(self.mem[self.pc + 7], 8),
+            self.mem[self.pc + 8])
 
         -- copy
         self.mem[B] = self.mem[A]
@@ -55,5 +63,5 @@ function Bytepusher:cycle()
     end
 end
 
-setmetatable(Bytepusher, {__call = Bytepusher.new})
+setmetatable(Bytepusher, { __call = Bytepusher.new })
 return Bytepusher
