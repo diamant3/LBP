@@ -13,7 +13,7 @@ function love.load(arg)
         Core = BP()
         Core:load(file)
     else
-        print("Result: "..result)
+        print("Result: " .. result)
         file:close()
     end
 end
@@ -23,9 +23,10 @@ function love.update()
 end
 
 function love.draw()
+    local INTENSITY = 0x33
+    local OPAQUE = 0xFF
+    local r, g, b = 0, 0, 0
     local zz = bit.lshift(Core.mem[5], 16)
-    local INTENSITY = 51
-    local OPAQUE = 255
 
     -- set bg to black
     love.graphics.clear(0, 0, 0, OPAQUE)
@@ -34,7 +35,6 @@ function love.draw()
         for xx = 0, 256 - 1 do
             local _yy = bit.lshift(yy, 8)
             local c = Core.mem[bit.bor(zz, _yy, xx)]
-            local r, g, b = 0, 0, 0
 
             -- Multi pixel color (web safe palette)
             if (c < 216) then
