@@ -4,6 +4,10 @@ Bytepusher VM implementation using Lua/Love2D
 
 *Work in progress*
 
+## Samples
+
+![LBP showcase](LBP.gif)
+
 ## Building
 
 **Requirements**
