@@ -17,3 +17,6 @@ bytepusher programs:
 - pal_test.bp
 - sine_scroll.bp
 - sprites.bp
+- invertloop_sine.bp
+- langton_ant.bp
+- munching_squares.bp
