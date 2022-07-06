@@ -37,7 +37,7 @@ function love.draw()
             local c = Core.mem[bit.bor(zz, _yy, xx)]
 
             -- Multi pixel color (web safe palette)
-            if (c < 216) then
+            if (c <= 216) then
                 b = (c % 6) * INTENSITY
                 c = c / 6
                 g = (c % 6) * INTENSITY
@@ -49,7 +49,7 @@ function love.draw()
                 b = b / OPAQUE
 
                 love.graphics.setColor(r, g, b, OPAQUE)
-            elseif (c >= 216) then
+            elseif (c >= 217 and c <= 255) then
                 -- black pixel color
                 love.graphics.setColor(0, 0, 0, OPAQUE)
             else
