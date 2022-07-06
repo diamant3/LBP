@@ -37,7 +37,7 @@ priority
 
 - [x] Core
 - [x] Gfx
-- [ ] Input(keys)
+- [x] Input(keys)
 - [ ] Audio
 
 optional

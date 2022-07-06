@@ -62,3 +62,22 @@ function love.draw()
         end
     end
 end
+
+function love.keypressed(key)
+    poll(key)
+end
+
+function love.keyreleased(key)
+    poll(key)
+end
+
+function poll(key)
+    local key_data = bit.bor(bit.lshift(Core.mem[0], 8), Core.mem[1])
+
+    if (Core.keyboard[key]) then
+        key_data = bit.bxor(key_data , bit.lshift(1, Core.keyboard[key]))
+    end
+
+    Core.mem[0] = bit.rshift(key_data, 8)
+    Core.mem[1] = bit.band(key_data, 0xFF)
+end
