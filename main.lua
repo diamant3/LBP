@@ -1,4 +1,4 @@
-local bit = require("bit") or require("bit32")
+local bit = require("bit")
 local BP = require("bytepusher")
 
 -- bytepusher object handler
