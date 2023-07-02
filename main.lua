@@ -1,8 +1,12 @@
 local bit = require("bit")
 local BP = require("bytepusher")
 
--- bytepusher object handler
-local Core
+-- bytepusher metatable handler
+local core = {}
+
+-- constants
+local INTENSITY = 0x33
+local OPAQUE = 0xFF
 
 function love.load(arg)
     local file = love.filesystem.newFile(arg[1])
@@ -10,31 +14,29 @@ function love.load(arg)
 
     if (status) then
         -- start bytepusher interpreter
-        Core = BP()
-        Core:load(file)
+        core = BP:new()
+        core.load(file)
     else
         print("Result: " .. result)
         file:close()
     end
 end
 
-function love.update()
-    Core:cycle()
+function love.update(dt)
+    core:cycle()
 end
 
 function love.draw()
-    local INTENSITY = 0x33
-    local OPAQUE = 0xFF
     local r, g, b = 0, 0, 0
-    local zz = bit.lshift(Core.mem[5], 16)
+    local zz = bit.lshift(core.mem[5], 16)
 
     -- set bg to black
     love.graphics.clear(0, 0, 0, OPAQUE)
 
-    for yy = 0, 256 - 1 do
-        for xx = 0, 256 - 1 do
+    for yy = 0, 255 do
+        for xx = 0, 255 do
             local _yy = bit.lshift(yy, 8)
-            local c = Core.mem[bit.bor(zz, _yy, xx)]
+            local c = core.mem[bit.bor(zz, _yy, xx)]
 
             -- Multi pixel color (web safe palette)
             if (c <= 216) then
@@ -72,12 +74,12 @@ function love.keyreleased(key)
 end
 
 function poll(key)
-    local key_data = bit.bor(bit.lshift(Core.mem[0], 8), Core.mem[1])
+    local key_data = bit.bor(bit.lshift(core.mem[0], 8), core.mem[1])
 
-    if (Core.keyboard[key]) then
-        key_data = bit.bxor(key_data , bit.lshift(1, Core.keyboard[key]))
+    if (core.keyboard[key]) then
+        key_data = bit.bxor(key_data , bit.lshift(1, core.keyboard[key]))
     end
 
-    Core.mem[0] = bit.rshift(key_data, 8)
-    Core.mem[1] = bit.band(key_data, 0xFF)
+    core.mem[0] = bit.rshift(key_data, 8)
+    core.mem[1] = bit.band(key_data, 0xFF)
 end
