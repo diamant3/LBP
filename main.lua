@@ -23,6 +23,10 @@ function love.load(arg)
 end
 
 function love.update(dt)
+    local cap = 1 / 30
+    if dt < cap then
+        love.timer.sleep(cap - dt)
+    end
     core:cycle()
 end
 
@@ -34,35 +38,41 @@ function love.draw()
     love.graphics.clear(0, 0, 0, OPAQUE)
 
     for yy = 0, 255 do
+        local _yy = bit.lshift(yy, 8)
+        local colors = {}
         for xx = 0, 255 do
-            local _yy = bit.lshift(yy, 8)
             local c = core.mem[bit.bor(zz, _yy, xx)]
-
+            colors[xx] = c
+        end
+    
+        for xx = 0, 255 do
+            local color = colors[xx]
+    
             -- Multi pixel color (web safe palette)
-            if (c <= 216) then
-                b = (c % 6) * INTENSITY
-                c = c / 6
-                g = (c % 6) * INTENSITY
-                c = c / 6
-                r = (c % 6) * INTENSITY
-
+            if (color <= 216) then
+                b = (color % 6) * INTENSITY
+                color = color / 6
+                g = (color % 6) * INTENSITY
+                color = color / 6
+                r = (color % 6) * INTENSITY
+    
                 r = r / OPAQUE
                 g = g / OPAQUE
                 b = b / OPAQUE
-
+    
                 love.graphics.setColor(r, g, b, OPAQUE)
-            elseif (c >= 217 and c <= 255) then
+            elseif (color >= 217 and color <= 255) then
                 -- black pixel color
                 love.graphics.setColor(0, 0, 0, OPAQUE)
             else
                 -- White pixel color
                 love.graphics.setColor(OPAQUE, OPAQUE, OPAQUE, OPAQUE)
             end
-
+    
             -- draw pixel
             love.graphics.rectangle("fill", xx, yy, 1, 1)
         end
-    end
+    end    
 end
 
 function love.keypressed(key)
